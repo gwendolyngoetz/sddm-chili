@@ -18,14 +18,12 @@
  *   Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import QtQuick 2.2
-import QtQuick.Controls 1.4
-import QtGraphicalEffects 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Effects
 
 Item {
     id: wrapper
-
     property bool isCurrent: true
     property bool constrainText: true
     property string name
@@ -34,21 +32,18 @@ Item {
     property string iconSource
     property int usernameFontSize
     property string usernameFontColor
-    
+
     property real faceSize
-    
+
     readonly property var m: model
-    
+
     signal clicked()
-
     opacity: isCurrent ? 1.0 : 0.3
-
     Behavior on opacity {
         OpacityAnimator {
             duration: 150
         }
     }
-
     Item {
         id: imageSource
         width: faceSize
@@ -65,23 +60,27 @@ Item {
             smooth: true
             visible: false
         }
+
         Image {
             id: mask
             source: "../assets/mask.svgz"
             sourceSize: Qt.size(faceSize, faceSize)
             smooth: true
+            visible: false
         }
-        OpacityMask {
+
+        MultiEffect {
             anchors.fill: face
             source: face
+            maskEnabled: true
             maskSource: mask
-            cached: true
+            maskThresholdMin: 0.5
+            maskSpreadAtMin: 0.0
         }
     }
 
     Label {
         id: usernameLabel
-
         color: usernameFontColor
         font.capitalization: Font.Capitalize
         font.pointSize: usernameFontSize * 1.2

@@ -17,9 +17,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.2
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick
+import QtQuick.Controls
 
 Button {
     id: keyboardLayoutButton
@@ -28,28 +27,38 @@ Button {
 
     visible: keyboard.layouts.length > 1
 
-    style: ButtonStyle {
-        label: Image {
-            id: buttonLabel
-            source: "../assets/keyboard.svgz"
-            fillMode: Image.PreserveAspectFit
-            transform: Translate { x: 5 }
-            smooth: false
-        }
-        background: Rectangle {
-            radius: 3
-            color: keyboardLayoutButton.activeFocus ? "white" : "transparent"
-            opacity: keyboardLayoutButton.activeFocus ? 0.3 : 1
-        }
+    // Replace style with direct background and contentItem
+    background: Rectangle {
+        radius: 3
+        color: keyboardLayoutButton.activeFocus ? "white" : "transparent"
+        opacity: keyboardLayoutButton.activeFocus ? 0.3 : 1
     }
 
-    menu: Menu {
+    contentItem: Image {
+        id: buttonLabel
+        source: "../assets/keyboard.svgz"
+        fillMode: Image.PreserveAspectFit
+        transform: Translate { x: 5 }
+
+        // Add these for crisp rendering
+        sourceSize: Qt.size(parent.width * 2, parent.height * 2)
+        smooth: true
+        antialiasing: true
+        mipmap: true
+    }
+
+    // In Qt6, use onClicked to show menu instead of menu property
+    onClicked: keyboardLayoutMenu.popup()
+
+    Menu {
         id: keyboardLayoutMenu
+        y: keyboardLayoutButton.height
+
         Instantiator {
             id: instantiator
             model: keyboard.layouts
-            onObjectAdded: keyboardLayoutMenu.insertItem(index, object)
-            onObjectRemoved: keyboardLayoutMenu.removeItem( object )
+            onObjectAdded: (index, object) => keyboardLayoutMenu.insertItem(index, object)
+            onObjectRemoved: (object) => keyboardLayoutMenu.removeItem(object)
             delegate: MenuItem {
                 text: modelData.longName
                 property string shortName: modelData.shortName
@@ -63,5 +72,4 @@ Button {
     Component.onCompleted: currentIndex = Qt.binding(function() {
         return keyboard.currentLayout
     });
-
 }

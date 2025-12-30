@@ -18,14 +18,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.2
-import QtQuick.Controls 1.4
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 Item {
     id: root
 
-    anchors.top: parent.bottom
-    anchors.topMargin: icon.height
+    // REMOVED these two lines - they conflict with Layout management
+    // anchors.top: parent.bottom
+    // anchors.topMargin: icon.height
 
     property alias text: label.text
     property alias iconSource: icon.source
@@ -39,6 +41,10 @@ Item {
     implicitWidth: Math.max(icon.implicitWidth, label.contentWidth)
     implicitHeight: Math.max(icon.implicitHeight + label.height * 2, label.height)
 
+    // Add Layout properties for when used in layouts
+    Layout.topMargin: icon.height
+    Layout.alignment: Qt.AlignBottom
+
     Image {
         id: icon
 
@@ -48,6 +54,10 @@ Item {
         }
         width: config.PowerIconSize || iconSize
         height: config.PowerIconSize || iconSize
+        sourceSize: Qt.size(width * 2, height * 2)  // Render at 2x for sharpness
+        smooth: true
+        antialiasing: true
+        mipmap: true
     }
 
     Label {
@@ -66,6 +76,7 @@ Item {
         color: "white"
         font.underline: root.activeFocus
     }
+
     MouseArea {
         id: mouseArea
         hoverEnabled: true
@@ -84,7 +95,7 @@ Item {
         duration: 200
     }
 
-     PropertyAnimation {
+    PropertyAnimation {
         id: fadeOut
         target: root
         properties: "opacity"

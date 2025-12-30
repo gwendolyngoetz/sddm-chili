@@ -17,14 +17,14 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.2
-import QtGraphicalEffects 1.0
+import QtQuick
+import QtQuick.Effects
 
 FocusScope {
     id: backgroundComponent
 
     property alias imageSource: backgroundImage.source
-    property bool configBlur: config.blur == "true"
+    property bool configBlur: (config.blur !== undefined) && (config.blur == "true")
 
     Image {
         id: backgroundImage
@@ -35,15 +35,34 @@ FocusScope {
         clip: true
         focus: true
         smooth: true
+
+        onStatusChanged: {
+            if (status === Image.Error) {
+                console.log("ERROR: Failed to load background:", source)
+            } else if (status === Image.Ready) {
+                console.log("SUCCESS: Background loaded:", source)
+            }
+        }
     }
 
-    RecursiveBlur {
-        id: backgroundBlur
+    ShaderEffectSource {
+        id: sourceItem
+        sourceItem: backgroundImage
+        anchors.fill: parent
+        visible: false
+        // Important: extend the source bounds for blur sampling
+        sourceRect: Qt.rect(-20, -20, width + 40, height + 40)
+    }
 
-        anchors.fill: backgroundImage
-        source: backgroundImage
-        radius: configBlur ? config.recursiveBlurRadius : 0
-        loops: configBlur ? config.recursiveBlurLoops : 0
+    MultiEffect {
+        id: backgroundBlur
+        anchors.fill: parent
+        source: sourceItem
+        visible: configBlur
+
+        blurEnabled: configBlur
+        blurMax: configBlur ? (config.recursiveBlurRadius || 64) : 0
+        blur: configBlur ? 1.0 : 0.0
     }
 
     MouseArea {

@@ -18,10 +18,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 2.2
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
-import SddmComponents 2.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import SddmComponents
 
 import "components"
 
@@ -44,7 +44,7 @@ Rectangle {
             y: geometry.y
             width: geometry.width
             height: geometry.height
-            imageSource: config.background
+            imageSource: "../" + config.background
         }
     }
 
@@ -135,21 +135,21 @@ Rectangle {
 
                 actionItems: [
                     ActionButton {
-                        iconSource: "assets/suspend.svgz"
+                        iconSource: "../assets/suspend.svgz"
                         text: config.translationSuspend ? config.translationSuspend : "Suspend"
                         onClicked: sddm.suspend()
                         enabled: sddm.canSuspend
                         iconSize: root.generalFontSize * 3
                     },
                     ActionButton {
-                        iconSource: "assets/reboot.svgz"
+                        iconSource: "../assets/reboot.svgz"
                         text: config.translationReboot ? config.translationReboot : textConstants.reboot
                         onClicked: sddm.reboot()
                         enabled: sddm.canReboot
                         iconSize: root.generalFontSize * 3
                     },
                     ActionButton {
-                        iconSource: "assets/shutdown.svgz"
+                        iconSource: "../assets/shutdown.svgz"
                         text: config.translationPowerOff ? config.translationPowerOff : textConstants.shutdown
                         onClicked: sddm.powerOff()
                         enabled: sddm.canPowerOff
@@ -175,7 +175,7 @@ Rectangle {
         Loader {
             id: inputPanel
             state: "hidden"
-            property bool keyboardActive: item ? item.active : false
+            property bool keyboardActive: false
             onKeyboardActiveChanged: {
                 if (keyboardActive) {
                     state = "visible"
@@ -184,10 +184,7 @@ Rectangle {
                 }
             }
             source: "components/VirtualKeyboard.qml"
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            Layout.fillWidth: true
 
             function showHide() {
                 state = state == "hidden" ? "visible" : "hidden";
@@ -302,7 +299,7 @@ Rectangle {
 
         Connections {
             target: sddm
-            onLoginFailed: {
+            function onLoginFailed() {
                 notificationMessage = textConstants.loginFailed
                 notificationResetTimer.start();
             }
