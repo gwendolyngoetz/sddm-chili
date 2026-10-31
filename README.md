@@ -15,7 +15,13 @@ Chili for SDDM is the desktop environment *independent* adaption of my chili log
 
 ### Installing the theme
 
-[Download the tar archive from openDesktop](https://www.opendesktop.org/p/1240784) and extract the contents to the theme directory of SDDM *(change the path for the downloaded file if necessary)*:
+From a checkout of this repository, install straight into `/usr/share/sddm/themes/chili` *(`sudo make uninstall` removes it again)*:
+```
+$ sudo make install
+```
+To preview the theme in a window without installing it, run `make test-mode` *(needs `sddm-greeter-qt6` on your PATH)*.
+
+Alternatively, [download the tar archive from openDesktop](https://www.opendesktop.org/p/1240784) and extract the contents to the theme directory of SDDM *(change the path for the downloaded file if necessary)*:
 ```
 $ sudo tar -xzvf ~/Downloads/sddm-chili.tar.gz -C /usr/share/sddm/themes
 ```
