@@ -38,6 +38,11 @@ Rectangle {
 
     TextConstants { id: textConstants }
 
+    // Focus is forced here rather than relying on focus: true in LoginForm, since the
+    // form is reparented into the StackView after the field is created and the
+    // focus chain does not reliably survive that.
+    Component.onCompleted: userListComponent.focusPasswordField()
+
     Repeater {
         model: screenModel
         Wallpaper {

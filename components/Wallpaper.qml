@@ -62,6 +62,8 @@ FocusScope {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: container.focus = true
+        // Clicking the wallpaper returns focus to the password field instead of parking
+        // it on a layout item where keyboard input would go nowhere.
+        onClicked: userListComponent.focusPasswordField()
     }
 }

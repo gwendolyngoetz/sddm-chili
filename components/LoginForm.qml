@@ -36,6 +36,10 @@ LoginFormLayout {
         loginRequest(username, password);
     }
 
+    function focusPasswordField() {
+        passwordField.forceActiveFocus()
+    }
+
     RowLayout {
 
         Layout.leftMargin: loginButton.width + inputSpacing * 2
