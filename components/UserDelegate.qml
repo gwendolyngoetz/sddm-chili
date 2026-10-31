@@ -18,12 +18,14 @@
  *   Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
 
 Item {
     id: wrapper
+
     property bool isCurrent: true
     property bool constrainText: true
     property string name
@@ -38,12 +40,15 @@ Item {
     readonly property var m: model
 
     signal clicked()
+
     opacity: isCurrent ? 1.0 : 0.3
+
     Behavior on opacity {
         OpacityAnimator {
             duration: 150
         }
     }
+
     Item {
         id: imageSource
         width: faceSize
@@ -69,18 +74,21 @@ Item {
             visible: false
         }
 
+        // Replaces QtGraphicalEffects.OpacityMask. Threshold 0 + full spread keeps
+        // the mask's anti-aliased edge instead of hard-cutting it.
         MultiEffect {
             anchors.fill: face
             source: face
             maskEnabled: true
             maskSource: mask
-            maskThresholdMin: 0.5
-            maskSpreadAtMin: 0.0
+            maskThresholdMin: 0.0
+            maskSpreadAtMin: 1.0
         }
     }
 
     Label {
         id: usernameLabel
+
         color: usernameFontColor
         font.capitalization: Font.Capitalize
         font.pointSize: usernameFontSize * 1.2

@@ -22,13 +22,15 @@ import QtQuick.Controls
 
 ToolButton {
     id: root
+
     property int currentIndex: -1
     property int rootFontSize
     property string rootFontColor
+
     visible: menu.count > 1
+
     opacity: root.activeFocus ? 1 : 0.5
 
-    // Replace style with direct properties
     background: Rectangle {
         color: "transparent"
     }
@@ -38,28 +40,33 @@ ToolButton {
         color: rootFontColor
         font.pointSize: rootFontSize
         renderType: Text.QtRendering
-        text: instantiator.objectAt(currentIndex)?.text || ""
         font.underline: root.activeFocus
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
+        text: {
+            // instantiator.count is read so the binding re-evaluates once items exist
+            var item = currentIndex >= 0 && currentIndex < instantiator.count
+                ? instantiator.objectAt(currentIndex) : null
+            return item ? item.text : ""
+        }
     }
 
     Component.onCompleted: {
         currentIndex = sessionModel.lastIndex
     }
 
-    // Replace menu property with manual popup
-    onClicked: menu.popup()
+    onClicked: menu.open()
 
     Menu {
         id: menu
-        y: root.height
+        // Button sits in the footer, so open upwards
+        y: -menu.height
 
         Instantiator {
             id: instantiator
             model: sessionModel
             onObjectAdded: (index, object) => menu.insertItem(index, object)
-            onObjectRemoved: (object) => menu.removeItem(object)
+            onObjectRemoved: (index, object) => menu.removeItem(object)
             delegate: MenuItem {
                 text: model.name
                 onTriggered: {

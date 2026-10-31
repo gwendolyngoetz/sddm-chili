@@ -16,13 +16,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
-import QtQuick
 
-Item {
+import QtQuick
+import QtQuick.VirtualKeyboard
+
+// Loaded through a Loader in Main.qml; if qt6-virtualkeyboard is not installed
+// the Loader fails and the theme runs without an on-screen keyboard.
+InputPanel {
     id: inputPanel
     property bool activated: false
-    // Keyboard disabled - set to empty item
-    visible: false
+    active: activated && Qt.inputMethod.visible
+    visible: active
     width: parent.width
-    height: 0
 }

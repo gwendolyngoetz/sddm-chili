@@ -22,20 +22,24 @@ import QtQuick
 
 ListView {
     id: view
+
     readonly property string selectedUser: currentItem ? currentItem.userName : ""
     readonly property int userItemWidth: root.width / 10
     readonly property int userItemHeight: avatarSize + passwordField.height / 2
+
     property int rootFontSize
     property string rootFontColor
     property int avatarSize
 
     implicitHeight: userItemHeight
+
     activeFocusOnTab : true
 
     signal userSelected()
 
     orientation: ListView.Horizontal
     highlightRangeMode: ListView.StrictlyEnforceRange
+
     preferredHighlightBegin: width / 2 - userItemWidth / 2
     preferredHighlightEnd: preferredHighlightBegin
 
@@ -48,28 +52,37 @@ ListView {
 
         name: {
             var displayName = model.realName || model.name
+
             if (model.vtNumber === undefined || model.vtNumber < 0) {
                 return displayName
             }
+
             if (!model.session) {
-                return "Nobody logged in on that session" // Removed extra "Unused"
+                return qsTr("Unused")
             }
+
             var location = ""
+
             if (model.isTty) {
-                location = qsTr("User logged in on console number TTY %1").arg(model.vtNumber)
+                location = qsTr("TTY %1").arg(model.vtNumber)
             } else if (model.displayNumber) {
                 location = qsTr("on TTY %1 (Display %2)").arg(model.vtNumber).arg(model.displayNumber)
             }
+
             if (location) {
                 return qsTr("%1 (%2)").arg(displayName).arg(location)
             }
+
             return displayName
         }
 
         userName: model.name
+
         width: userItemWidth
         height: userItemHeight
+
         constrainText: ListView.view.count > 1
+
         isCurrent: ListView.isCurrentItem
 
         onClicked: {

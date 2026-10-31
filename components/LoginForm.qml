@@ -54,7 +54,6 @@ LoginFormLayout {
             implicitHeight: usernameFontSize * 2.75
             opacity: 0.5
 
-            // Replace style with direct properties
             color: passwordFieldOutlined ? "white" : "black"
             placeholderTextColor: passwordFieldOutlined ? "white" : "black"
 
@@ -69,7 +68,7 @@ LoginFormLayout {
                 loginFormStack.currentItem.forceActiveFocus();
             }
 
-            Keys.onPressed: function(event) {
+            Keys.onPressed: (event) => {
                 if (event.key == Qt.Key_Left && !text) {
                     userList.decrementCurrentIndex();
                     event.accepted = true
@@ -80,7 +79,7 @@ LoginFormLayout {
                 }
             }
 
-            Keys.onReleased: function(event) {
+            Keys.onReleased: (event) => {
                 if (loginButton.opacity == 0 && length > 0) {
                     showLoginButton.start()
                 }

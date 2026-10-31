@@ -34,6 +34,7 @@ Rectangle {
     property string notificationMessage
     property string generalFontColor: "white"
     property int generalFontSize: config.FontPointSize ? config.FontPointSize : root.height / 80
+    readonly property int longDuration: 250
 
     TextConstants { id: textConstants }
 
@@ -44,7 +45,8 @@ Rectangle {
             y: geometry.y
             width: geometry.width
             height: geometry.height
-            imageSource: "../" + config.background
+            // Resolve here so the path is relative to the theme root, not to components/
+            imageSource: config.background ? Qt.resolvedUrl(config.background) : ""
         }
     }
 
@@ -127,29 +129,25 @@ Rectangle {
                     return userListModel.count <= userListModel.disableAvatarsThreshold && (userList.y + loginFormStack.y) > 0
                 }
 
-                notificationMessage: {
-                    var text = ""
-                    text += root.notificationMessage
-                    return text
-                }
+                notificationMessage: root.notificationMessage
 
                 actionItems: [
                     ActionButton {
-                        iconSource: "../assets/suspend.svgz"
+                        iconSource: Qt.resolvedUrl("assets/suspend.svgz")
                         text: config.translationSuspend ? config.translationSuspend : "Suspend"
                         onClicked: sddm.suspend()
                         enabled: sddm.canSuspend
                         iconSize: root.generalFontSize * 3
                     },
                     ActionButton {
-                        iconSource: "../assets/reboot.svgz"
+                        iconSource: Qt.resolvedUrl("assets/reboot.svgz")
                         text: config.translationReboot ? config.translationReboot : textConstants.reboot
                         onClicked: sddm.reboot()
                         enabled: sddm.canReboot
                         iconSize: root.generalFontSize * 3
                     },
                     ActionButton {
-                        iconSource: "../assets/shutdown.svgz"
+                        iconSource: Qt.resolvedUrl("assets/shutdown.svgz")
                         text: config.translationPowerOff ? config.translationPowerOff : textConstants.shutdown
                         onClicked: sddm.powerOff()
                         enabled: sddm.canPowerOff
@@ -157,7 +155,7 @@ Rectangle {
                     }
                 ]
 
-                onLoginRequest: {
+                onLoginRequest: (username, password) => {
                     root.notificationMessage = ""
                     sddm.login(username, password, sessionMenu.currentIndex)
                 }
@@ -170,115 +168,6 @@ Rectangle {
                 }
             }
 
-        }
-
-        Loader {
-            id: inputPanel
-            state: "hidden"
-            property bool keyboardActive: false
-            onKeyboardActiveChanged: {
-                if (keyboardActive) {
-                    state = "visible"
-                } else {
-                    state = "hidden";
-                }
-            }
-            source: "components/VirtualKeyboard.qml"
-            Layout.fillWidth: true
-
-            function showHide() {
-                state = state == "hidden" ? "visible" : "hidden";
-            }
-
-            states: [
-                State {
-                    name: "visible"
-                    PropertyChanges {
-                        target: loginFormStack
-                        y: Math.min(0, root.height - inputPanel.height - userListComponent.visibleBoundary)
-                    }
-                    PropertyChanges {
-                        target: inputPanel
-                        y: root.height - inputPanel.height
-                        opacity: 1
-                    }
-                },
-                State {
-                    name: "hidden"
-                    PropertyChanges {
-                        target: loginFormStack
-                        y: 0
-                    }
-                    PropertyChanges {
-                        target: inputPanel
-                        y: root.height - root.height/4
-                        opacity: 0
-                    }
-                }
-            ]
-            transitions: [
-                Transition {
-                    from: "hidden"
-                    to: "visible"
-                    SequentialAnimation {
-                        ScriptAction {
-                            script: {
-                                inputPanel.item.activated = true;
-                                Qt.inputMethod.show();
-                            }
-                        }
-                        ParallelAnimation {
-                            NumberAnimation {
-                                target: loginFormStack
-                                property: "y"
-                                duration: units.longDuration
-                                easing.type: Easing.InOutQuad
-                            }
-                            NumberAnimation {
-                                target: inputPanel
-                                property: "y"
-                                duration: units.longDuration
-                                easing.type: Easing.OutQuad
-                            }
-                            OpacityAnimator {
-                                target: inputPanel
-                                duration: units.longDuration
-                                easing.type: Easing.OutQuad
-                            }
-                        }
-                    }
-                },
-                Transition {
-                    from: "visible"
-                    to: "hidden"
-                    SequentialAnimation {
-                        ParallelAnimation {
-                            NumberAnimation {
-                                target: loginFormStack
-                                property: "y"
-                                duration: units.longDuration
-                                easing.type: Easing.InOutQuad
-                            }
-                            NumberAnimation {
-                                target: inputPanel
-                                property: "y"
-                                duration: units.longDuration
-                                easing.type: Easing.InQuad
-                            }
-                            OpacityAnimator {
-                                target: inputPanel
-                                duration: units.longDuration
-                                easing.type: Easing.InQuad
-                            }
-                        }
-                        ScriptAction {
-                            script: {
-                                Qt.inputMethod.hide();
-                            }
-                        }
-                    }
-                }
-            ]
         }
 
         RowLayout {
@@ -311,5 +200,118 @@ Rectangle {
             onTriggered: notificationMessage = ""
         }
 
+    }
+
+    // Overlay, positioned by its states below. Kept out of the ColumnLayout so the
+    // hidden keyboard does not reserve space in the column.
+    Loader {
+        id: inputPanel
+        state: "hidden"
+        property bool keyboardActive: item ? item.active : false
+        onKeyboardActiveChanged: {
+            if (keyboardActive) {
+                state = "visible"
+            } else {
+                state = "hidden";
+            }
+        }
+        source: "components/VirtualKeyboard.qml"
+        width: parent.width
+
+        function showHide() {
+            state = state == "hidden" ? "visible" : "hidden";
+        }
+
+        states: [
+            State {
+                name: "visible"
+                PropertyChanges {
+                    target: loginFormStack
+                    y: Math.min(0, root.height - inputPanel.height - userListComponent.visibleBoundary)
+                }
+                PropertyChanges {
+                    target: inputPanel
+                    y: root.height - inputPanel.height
+                    opacity: 1
+                }
+            },
+            State {
+                name: "hidden"
+                PropertyChanges {
+                    target: loginFormStack
+                    y: 0
+                }
+                PropertyChanges {
+                    target: inputPanel
+                    y: root.height - root.height/4
+                    opacity: 0
+                }
+            }
+        ]
+        transitions: [
+            Transition {
+                from: "hidden"
+                to: "visible"
+                SequentialAnimation {
+                    ScriptAction {
+                        script: {
+                            if (inputPanel.item) {
+                                inputPanel.item.activated = true;
+                            }
+                            Qt.inputMethod.show();
+                        }
+                    }
+                    ParallelAnimation {
+                        NumberAnimation {
+                            target: loginFormStack
+                            property: "y"
+                            duration: root.longDuration
+                            easing.type: Easing.InOutQuad
+                        }
+                        NumberAnimation {
+                            target: inputPanel
+                            property: "y"
+                            duration: root.longDuration
+                            easing.type: Easing.OutQuad
+                        }
+                        OpacityAnimator {
+                            target: inputPanel
+                            duration: root.longDuration
+                            easing.type: Easing.OutQuad
+                        }
+                    }
+                }
+            },
+            Transition {
+                from: "visible"
+                to: "hidden"
+                SequentialAnimation {
+                    ParallelAnimation {
+                        NumberAnimation {
+                            target: loginFormStack
+                            property: "y"
+                            duration: root.longDuration
+                            easing.type: Easing.InOutQuad
+                        }
+                        NumberAnimation {
+                            target: inputPanel
+                            property: "y"
+                            duration: root.longDuration
+                            easing.type: Easing.InQuad
+                        }
+                        OpacityAnimator {
+                            target: inputPanel
+                            duration: root.longDuration
+                            easing.type: Easing.InQuad
+                        }
+                    }
+                    ScriptAction {
+                        script: {
+                            Qt.inputMethod.hide();
+                        }
+                    }
+                }
+            }
+        ]
     }
 }

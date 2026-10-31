@@ -23,11 +23,10 @@ import QtQuick.Controls
 Button {
     id: keyboardLayoutButton
 
-    property int currentIndex
+    property int currentIndex: keyboard.currentLayout
 
     visible: keyboard.layouts.length > 1
 
-    // Replace style with direct background and contentItem
     background: Rectangle {
         radius: 3
         color: keyboardLayoutButton.activeFocus ? "white" : "transparent"
@@ -39,16 +38,12 @@ Button {
         source: "../assets/keyboard.svgz"
         fillMode: Image.PreserveAspectFit
         transform: Translate { x: 5 }
-
-        // Add these for crisp rendering
-        sourceSize: Qt.size(parent.width * 2, parent.height * 2)
+        sourceSize: Qt.size(keyboardLayoutButton.width * 2, keyboardLayoutButton.height * 2)
         smooth: true
-        antialiasing: true
         mipmap: true
     }
 
-    // In Qt6, use onClicked to show menu instead of menu property
-    onClicked: keyboardLayoutMenu.popup()
+    onClicked: keyboardLayoutMenu.open()
 
     Menu {
         id: keyboardLayoutMenu
@@ -58,7 +53,7 @@ Button {
             id: instantiator
             model: keyboard.layouts
             onObjectAdded: (index, object) => keyboardLayoutMenu.insertItem(index, object)
-            onObjectRemoved: (object) => keyboardLayoutMenu.removeItem(object)
+            onObjectRemoved: (index, object) => keyboardLayoutMenu.removeItem(object)
             delegate: MenuItem {
                 text: modelData.longName
                 property string shortName: modelData.shortName
@@ -68,8 +63,4 @@ Button {
             }
         }
     }
-
-    Component.onCompleted: currentIndex = Qt.binding(function() {
-        return keyboard.currentLayout
-    });
 }

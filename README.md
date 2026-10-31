@@ -8,10 +8,10 @@ Chili for SDDM is the desktop environment *independent* adaption of my chili log
 
 ### Dependencies
 
-  * sddm
-  * qt5
-  * qt5-quickcontrols
-  * qt5-graphicaleffects
+  * sddm (0.21 or newer, built against Qt 6)
+  * qt6-declarative (QtQuick.Controls, QtQuick.Layouts, QtQuick.Effects)
+  * qt6-svg
+  * qt6-virtualkeyboard *(optional, on-screen keyboard)*
 
 ### Installing the theme
 
@@ -37,10 +37,9 @@ Chili is highly customizable through its included `theme.conf` file. You can alt
   `ScreenWidth=6000`
   `ScreenHeight=4000`
 
-  * Disable blur or play around with its intensity:
+  * Disable blur or play around with its intensity *(radius is capped at 64; `recursiveBlurLoops` is no longer used)*:
   `blur=true`
-  `recursiveBlurLoops=4`
-  `recursiveBlurRadius=15`
+  `recursiveBlurRadius=32`
 
   * (De-)Activate a new oultine-only effect for the password field:
   `PasswordFieldOutlined=false`

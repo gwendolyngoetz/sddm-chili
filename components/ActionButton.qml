@@ -25,10 +25,6 @@ import QtQuick.Layouts
 Item {
     id: root
 
-    // REMOVED these two lines - they conflict with Layout management
-    // anchors.top: parent.bottom
-    // anchors.topMargin: icon.height
-
     property alias text: label.text
     property alias iconSource: icon.source
     property alias font: label.font
@@ -41,7 +37,8 @@ Item {
     implicitWidth: Math.max(icon.implicitWidth, label.contentWidth)
     implicitHeight: Math.max(icon.implicitHeight + label.height * 2, label.height)
 
-    // Add Layout properties for when used in layouts
+    // Instances live in a RowLayout, so spacing is expressed through Layout.*
+    // instead of anchors (anchors on a layout-managed item are undefined).
     Layout.topMargin: icon.height
     Layout.alignment: Qt.AlignBottom
 
@@ -54,9 +51,9 @@ Item {
         }
         width: config.PowerIconSize || iconSize
         height: config.PowerIconSize || iconSize
-        sourceSize: Qt.size(width * 2, height * 2)  // Render at 2x for sharpness
+        // Rasterize the SVG at 2x so the downscale stays crisp
+        sourceSize: Qt.size(width * 2, height * 2)
         smooth: true
-        antialiasing: true
         mipmap: true
     }
 
