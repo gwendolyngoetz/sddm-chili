@@ -74,15 +74,16 @@ Item {
             visible: false
         }
 
-        // Replaces QtGraphicalEffects.OpacityMask. Threshold 0 + full spread keeps
-        // the mask's anti-aliased edge instead of hard-cutting it.
+        // Replaces QtGraphicalEffects.OpacityMask: pixels where the circle mask has
+        // alpha below 0.5 are cut away. These values are verified on hardware; a
+        // threshold of 0.0 shows the full square and 1.0 hides the avatar entirely.
         MultiEffect {
             anchors.fill: face
             source: face
             maskEnabled: true
             maskSource: mask
-            maskThresholdMin: 0.0
-            maskSpreadAtMin: 1.0
+            maskThresholdMin: 0.5
+            maskSpreadAtMin: 0.0
         }
     }
 
